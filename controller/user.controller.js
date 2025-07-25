@@ -63,6 +63,7 @@ const login =async(req,res)=>{
         res.cookie("token",token, cookieOptions);
         return res.status(200).json({
             message:"Login successful",
+            token: token, // Include token in response for production
             user: {
                 id: user._id,
                 name: user.name,
