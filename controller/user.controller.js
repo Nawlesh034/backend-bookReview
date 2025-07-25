@@ -50,8 +50,17 @@ const login =async(req,res)=>{
         // token generation using jwt
         
         const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"1d"});
-        console.log(token)
-        res.cookie("token",token,{httpOnly:true,maxAge:1000*60*60*24});
+        console.log('🎫 Generated token:', token);
+
+        const cookieOptions = {
+            httpOnly:true,
+            maxAge:1000*60*60*24,
+            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Allow cross-origin in production
+        };
+
+        console.log('🍪 Setting cookie with options:', cookieOptions);
+        res.cookie("token",token, cookieOptions);
         return res.status(200).json({
             message:"Login successful",
             user: {
@@ -66,7 +75,11 @@ const login =async(req,res)=>{
     }
 }
 const logout = async(req,res)=>{
-    res.clearCookie("token");
+    res.clearCookie("token", {
+        httpOnly:true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
     return res.status(200).json({message:"Logout successful"});
 }
 const AddBook = async(req,res)=>{
